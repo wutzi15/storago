@@ -1,3 +1,2 @@
 # storago
-A storage analyzer written in go
-Test commit
+A storage analyzer with a history written in go
