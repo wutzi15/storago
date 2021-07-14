@@ -9,4 +9,4 @@ This project is inspired by [ncdu](https://dev.yorhel.nl/ncdu) and [godu](https:
 - [ ] GUI
 - [ ] DB for storage
 # Contributions
-Constructice contributions are very much appreciated.
+Constructive contributions are very much appreciated.
