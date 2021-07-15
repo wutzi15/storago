@@ -1,6 +1,7 @@
 package interactive
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/wutzi15/storago/files"
@@ -24,4 +25,22 @@ func FilesAsSlice(in map[*files.File]struct{}) []string {
 	sort.Sort(sort.StringSlice(out))
 	sort.Sort(byLength(out))
 	return out
+}
+
+func GetParentName(file *files.File) string {
+	if file.Parent == nil {
+		return ""
+	} else {
+		return GetParentName(file.Parent) + "/" + file.Parent.Name
+	}
+}
+
+func PrintFile(file *files.File) {
+
+	fmt.Printf("%s/%s -> %s\n", GetParentName(file), file.Name, formatBytes(file.Size))
+	if len(file.Files) > 0 {
+		for _, subFile := range file.Files {
+			PrintFile(subFile)
+		}
+	}
 }

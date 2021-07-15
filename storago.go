@@ -25,6 +25,8 @@ func main() {
 	limit := flag.Int64("l", 10, "show only files larger than limit (in MB)")
 	nullTerminate := flag.Bool("print0", false, "print null terminated strings")
 	version := flag.Bool("v", false, "show version info")
+	daemon := flag.Bool("d", true, "run as daemon")
+	debug := flag.Bool("debug", false, "run in debug mode")
 
 	flag.Parse()
 
@@ -54,19 +56,25 @@ func main() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	s := initScreen()
-	commandsChan := make(chan commands.Executer)
-	states := make(chan commands.State)
-	lastStateChan := make(chan *commands.State, 1)
-	var wg sync.WaitGroup
-	wg.Add(3)
-	go commands.StartProcessing(rootFolder, commandsChan, states, lastStateChan, &wg)
-	go interactiveFolder(s, states, &wg)
-	go parseCommand(s, commandsChan, &wg)
-	wg.Wait()
-	s.Fini()
-	lastState := <-lastStateChan
-	printMarkedFiles(lastState, *nullTerminate)
+
+	if *debug {
+		interactive.PrintFile(rootFolder)
+	}
+	if !*daemon {
+		s := initScreen()
+		commandsChan := make(chan commands.Executer)
+		states := make(chan commands.State)
+		lastStateChan := make(chan *commands.State, 1)
+		var wg sync.WaitGroup
+		wg.Add(3)
+		go commands.StartProcessing(rootFolder, commandsChan, states, lastStateChan, &wg)
+		go interactiveFolder(s, states, &wg)
+		go parseCommand(s, commandsChan, &wg)
+		wg.Wait()
+		s.Fini()
+		lastState := <-lastStateChan
+		printMarkedFiles(lastState, *nullTerminate)
+	}
 }
 
 func reportProgress(progress <-chan int) {
